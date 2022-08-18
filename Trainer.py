@@ -575,7 +575,7 @@ def main():
     if args.do_eval:
         logger.info("*** Dev Evaluate ***")
         dev_dataset = TaskDataset(dev_data_file, params=dataset_params, do_shuffle=False)
-        if model.__class__.__name__ == 'WCBertCRFForTokenClassification':
+        if model.__class__.__name__ != 'DistributedDataParallel':
             model = model.cuda()
             model = torch.nn.parallel.DistributedDataParallel(
                 model,
@@ -601,7 +601,7 @@ def main():
     if args.do_predict:
         logger.info("*** Test Evaluate ***")
         test_dataset = TaskDataset(test_data_file, params=dataset_params, do_shuffle=False)
-        if model.__class__.__name__ == 'WCBertCRFForTokenClassification':
+        if model.__class__.__name__ != 'DistributedDataParallel':
             model = model.cuda()
             model = torch.nn.parallel.DistributedDataParallel(
                 model,
