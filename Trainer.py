@@ -590,7 +590,7 @@ def main():
                 global_steps = args.model_name_or_path.split("/")[-2].split("-")[-1]
             except:
                 global_steps = 'user_model'
-        model.load_state_dict(torch.load(args.model_name_or_path)) # load model state
+            model.load_state_dict(torch.load(args.model_name_or_path)) # load model state
         eval_output, _ = evaluate(model, args, dev_dataset, label_vocab, global_steps, "dev", write_file=True)
         eval_output["global_steps"] = global_steps
         print("Dev Result: acc: %.4f, p: %.4f, r: %.4f, f1: %.4f\n"%
@@ -616,7 +616,7 @@ def main():
                 global_steps = args.model_name_or_path.split("/")[-2].split("-")[-1]
             except:
                 global_steps = 'user_model'
-        model.load_state_dict(torch.load(args.model_name_or_path)) # load model state
+            model.load_state_dict(torch.load(args.model_name_or_path)) # load model state
         eval_output, _ = evaluate(model, args, test_dataset, label_vocab, global_steps, "test", write_file=True)
         eval_output["global_steps"] = global_steps
         print("Test Result: acc: %.4f, p: %.4f, r: %.4f, f1: %.4f\n" %
