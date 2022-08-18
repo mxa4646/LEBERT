@@ -575,7 +575,22 @@ def main():
     if args.do_eval:
         logger.info("*** Dev Evaluate ***")
         dev_dataset = TaskDataset(dev_data_file, params=dataset_params, do_shuffle=False)
-        global_steps = args.model_name_or_path.split("/")[-2].split("-")[-1]
+        if model.__class__.__name__ == 'WCBertCRFForTokenClassification':
+            model = model.cuda()
+            model = torch.nn.parallel.DistributedDataParallel(
+                model,
+                device_ids=[args.local_rank],
+                output_device=args.local_rank,
+                find_unused_parameters=True
+            )
+        if args.model_name_or_path is None: # do eval in training
+            global_steps = 'final_eval'
+        else:
+            try:
+                global_steps = args.model_name_or_path.split("/")[-2].split("-")[-1]
+            except:
+                global_steps = 'user_model'
+        model.load_state_dict(torch.load(args.model_name_or_path)) # load model state
         eval_output, _ = evaluate(model, args, dev_dataset, label_vocab, global_steps, "dev", write_file=True)
         eval_output["global_steps"] = global_steps
         print("Dev Result: acc: %.4f, p: %.4f, r: %.4f, f1: %.4f\n"%
@@ -586,7 +601,22 @@ def main():
     if args.do_predict:
         logger.info("*** Test Evaluate ***")
         test_dataset = TaskDataset(test_data_file, params=dataset_params, do_shuffle=False)
-        global_steps = args.model_name_or_path.split("/")[-2].split("-")[-1]
+        if model.__class__.__name__ == 'WCBertCRFForTokenClassification':
+            model = model.cuda()
+            model = torch.nn.parallel.DistributedDataParallel(
+                model,
+                device_ids=[args.local_rank],
+                output_device=args.local_rank,
+                find_unused_parameters=True
+            )
+        if args.model_name_or_path is None: # do test in training
+            global_steps = 'final_test'
+        else:
+            try:
+                global_steps = args.model_name_or_path.split("/")[-2].split("-")[-1]
+            except:
+                global_steps = 'user_model'
+        model.load_state_dict(torch.load(args.model_name_or_path)) # load model state
         eval_output, _ = evaluate(model, args, test_dataset, label_vocab, global_steps, "test", write_file=True)
         eval_output["global_steps"] = global_steps
         print("Test Result: acc: %.4f, p: %.4f, r: %.4f, f1: %.4f\n" %
